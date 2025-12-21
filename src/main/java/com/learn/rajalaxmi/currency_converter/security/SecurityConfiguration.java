@@ -1,5 +1,7 @@
 package com.learn.rajalaxmi.currency_converter.security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -8,6 +10,8 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfiguration {
+
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfiguration.class);
 
     /**
      * Tells Spring Security explicitly the access permission rules
@@ -20,6 +24,7 @@ public class SecurityConfiguration {
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        logger.info("Checking access permission for incoming request...");
         http
                 // Disable CSRF protection specifically for the h2-console path
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))
@@ -33,6 +38,7 @@ public class SecurityConfiguration {
                         .anyRequest().authenticated() // Protect other endpoints
                 );
 
+        logger.info("Returning request with access rules...");
         return http.build();
     }
 }
