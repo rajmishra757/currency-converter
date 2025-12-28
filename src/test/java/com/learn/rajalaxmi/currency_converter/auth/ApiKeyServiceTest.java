@@ -3,6 +3,9 @@ package com.learn.rajalaxmi.currency_converter.auth;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -14,34 +17,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ApiKeyServiceTest {
+class ApiKeyServiceTest {
 
     @Mock
     private ApiKeyRepository apiKeyRepository;
 
     @InjectMocks
-    private ApiKeyService apiKeyService;
+    private ApiKeyServiceImpl apiKeyService;
 
     @BeforeEach
-    void setUp() {}
-
-    @Test
-    void validate_shouldReturnEmpty_whenKeyIsNull() {
-        Optional<ApiKey> result = apiKeyService.validate(null);
-        assertTrue(result.isEmpty());
-        verifyNoInteractions(apiKeyRepository);
+    void setUp() { // Can be used later
     }
 
-    @Test
-    void validate_shouldReturnEmpty_whenKeyIsEmpty() {
-        Optional<ApiKey> result = apiKeyService.validate("");
-        assertTrue(result.isEmpty());
-        verifyNoInteractions(apiKeyRepository);
-    }
-
-    @Test
-    void validate_shouldReturnEmpty_whenKeyIsBlank() {
-        Optional<ApiKey> result = apiKeyService.validate("  ");
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {" "})
+    void validate_shouldReturnEmpty_whenKeyIsNullEmptyOrBlank(String arg) {
+        Optional<ApiKeyDto> result = apiKeyService.validate(arg);
         assertTrue(result.isEmpty());
         verifyNoInteractions(apiKeyRepository);
     }
@@ -51,7 +43,7 @@ public class ApiKeyServiceTest {
         when(apiKeyRepository.findByKeyValue("invalid-key"))
                 .thenReturn(Optional.empty());
 
-        Optional<ApiKey> result = apiKeyService.validate("invalid-key");
+        Optional<ApiKeyDto> result = apiKeyService.validate("invalid-key");
         assertTrue(result.isEmpty());
         verify(apiKeyRepository).findByKeyValue("invalid-key");
     }
@@ -63,7 +55,7 @@ public class ApiKeyServiceTest {
         when(apiKeyRepository.findByKeyValue("inactive-key"))
                 .thenReturn(Optional.of(inactiveApiKey));
 
-        Optional<ApiKey> result = apiKeyService.validate("inactive-key");
+        Optional<ApiKeyDto> result = apiKeyService.validate("inactive-key");
         assertTrue(result.isEmpty());
         verify(apiKeyRepository).findByKeyValue("inactive-key");
     }
@@ -75,9 +67,9 @@ public class ApiKeyServiceTest {
         when(apiKeyRepository.findByKeyValue("active-key"))
                 .thenReturn(Optional.of(activeApiKey));
 
-        Optional<ApiKey> result = apiKeyService.validate("active-key");
+        Optional<ApiKeyDto> result = apiKeyService.validate("active-key");
         assertTrue(result.isPresent());
-        assertEquals(activeApiKey, result.get());
+        assertEquals(ApiKeyDto.fromEntity(activeApiKey), result.get());
         verify(apiKeyRepository).findByKeyValue("active-key");
     }
 }

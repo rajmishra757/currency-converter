@@ -1,7 +1,9 @@
 package com.learn.rajalaxmi.currency_converter.auth;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
@@ -9,6 +11,8 @@ import java.time.Instant;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "api_keys", uniqueConstraints = @UniqueConstraint(columnNames = "key"))
 public class ApiKey {
 
